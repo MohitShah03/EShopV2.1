@@ -1,7 +1,7 @@
 const Product = require("../models/product");
 const file = require("../util/fileDelete");
 
-exports.getAddProduct = (req, res, next) => {
+exports.getAddProduct = (req, res) => {
   const error = req.flash("error");
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
@@ -13,7 +13,7 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
-exports.postAddProduct = (req, res, next) => {
+exports.postAddProduct = (req, res) => {
   const title = req.body.title;
   const image = req.body.imageUrl;
   const price = req.body.price;
@@ -38,7 +38,7 @@ exports.postAddProduct = (req, res, next) => {
     });
 };
 
-exports.getEditProduct = (req, res, next) => {
+exports.getEditProduct = (req, res) => {
   const editMode = req.query.edit;
   const error = req.flash("error");
   if (!editMode) {
@@ -63,7 +63,7 @@ exports.getEditProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.postEditProduct = (req, res, next) => {
+exports.postEditProduct = (req, res) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
@@ -85,7 +85,7 @@ exports.postEditProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.getProducts = (req, res, next) => {
+exports.getProducts = (req, res) => {
   console.log(req.user._id);
   isAdmin = req.session.isAdmin === "True" ? true : false;
   console.log(isAdmin);
@@ -102,7 +102,7 @@ exports.getProducts = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.postDeleteProduct = (req, res, next) => {
+exports.postDeleteProduct = (req, res) => {
   const prodId = req.body.productId;
 
   Product.findByIdAndRemove(prodId)
@@ -113,7 +113,7 @@ exports.postDeleteProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 const Order = require("../models/order");
-exports.getAllOrders = (req, res, next) => {
+exports.getAllOrders = (req, res) => {
   console.log(req.session.isAdmin);
   Order.find()
     .then((orders) => {

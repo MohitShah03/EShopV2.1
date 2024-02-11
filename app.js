@@ -32,7 +32,7 @@ require("dotenv").config();
 }; */
 const mongoDBstore = require("connect-mongodb-session")(session);
 const store = new mongoDBstore({
-  uri: process.env.DB_URL,
+  uri: 'mongodb://127.0.0.1/e-Shop-web',
   collection: "sessions",
 });
 
@@ -91,7 +91,7 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(process.env.DB_URL, {
+  .connect('mongodb://127.0.0.1/e-Shop-web', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
