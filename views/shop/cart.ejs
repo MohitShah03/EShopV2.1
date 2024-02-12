@@ -11,17 +11,14 @@
                         <li class="cart__item">
                             <div class="card m-auto my-4" style="width: 50rem;">
                                 <div class="card-body d-flex justify-content-between">
-                                            <h5 class="card-title">You bought <%= p.productId.title %></h5>
+                                            <h5 class="card-title">Added to cart : <%= p.productId.title %></h5>
                                             <p class="card-text">Quantity: <%= p.quantity  %></p>
                                             <form action="/cart-delete-item" method="POST">
                                                 <input type="hidden" value="<%= p.productId._id %>" name="productId">
-                                                <button type="submit" class="btn btn-primary">Go to Home page</button>
-                                                <button class="btn danger" type="submit">Delete</button>
+                                                <button type="submit" class="btn btn-danger">Delete</button>
                                             </form>
                                 </div>
                             </div>
-                            <h1><%= p.productId.title %></h1>
-                            <h2><%= p.quantity %></h2> &nbsp;
                         </li>
                     <% }) %>
                 </ul>

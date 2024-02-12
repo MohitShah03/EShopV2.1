@@ -1,11 +1,6 @@
 const Product = require("../models/product");
-const Order = require("../models/order");
-const fs = require("fs");
-const path = require("path");
-const pdfDoc = require("pdfkit");
-require("dotenv").config();
 
-exports.getProducts = (req, res, next) => {
+exports.getProducts = (req, res) => {
   Product.find()
     .then((products) => {
       res.render("shop/product-list", {
@@ -21,7 +16,7 @@ exports.getProducts = (req, res, next) => {
     });
 };
 
-exports.getProduct = (req, res, next) => {
+exports.getProduct = (req, res) => {
   const prodId = req.params.productId;
   Product.findById(prodId)
     .then((product) => {
@@ -36,7 +31,7 @@ exports.getProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.getIndex = (req, res, next) => {
+exports.getIndex = (req, res) => {
 
   console.log(req.session);
   Product.find().then((products) => {
@@ -53,7 +48,7 @@ exports.getIndex = (req, res, next) => {
     });
 };
 
-exports.getCart = (req, res, next) => {
+exports.getCart = (req, res) => {
   req.user
     .populate("cart.items.productId")
     .execPopulate()
@@ -70,7 +65,7 @@ exports.getCart = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.postCart = (req, res, next) => {
+exports.postCart = (req, res) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
     .then((product) => {
@@ -82,7 +77,7 @@ exports.postCart = (req, res, next) => {
     });
 };
 
-exports.postCartDeleteProduct = (req, res, next) => {
+exports.postCartDeleteProduct = (req, res) => {
   const prodId = req.body.productId;
   req.user
     .removeFromCart(prodId)
@@ -92,76 +87,6 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.postOrder = (req, res, next) => {
-  req.user
-    .populate("cart.items.productId")
-    .execPopulate()
-    .then((user) => {
-      const products = user.cart.items.map((i) => {
-        return { quantity: i.quantity, product: { ...i.productId._doc } };
-      });
-      const order = new Order({
-        user: {
-          email: req.user.email,
-          userId: req.user,
-          name: req.user.name,
-          mobileno: req.user.mobileno,
-          address: req.user.address,
-        },
-        products: products,
-      });
-      return order.save();
-    })
-    .then((result) => {
-      return req.user.clearCart();
-    })
-    .then(() => {
-      res.redirect("/orders");
-    })
-    .catch((err) => console.log(err));
-};
-
-exports.getOrders = (req, res, next) => {
-  Order.find({ "user.userId": req.user._id })
-    .then((orders) => {
-      res.render("shop/orders", {
-        path: "/orders",
-        pageTitle: "Your Orders",
-        orders: orders,
-        isAuthenticated: req.session.isLoggedIn,
-        isAdmin: req.session.isAdmin === "True" ? true : false,
-      });
-    })
-    .catch((err) => console.log(err));
-};
-exports.getInvoice = (req, res, next) => {
-  console.log(req.params.orderId);
-
-  const orderId = req.params.orderId;
-  Order.findById(orderId).then((order) => {
-    if (!order || order.user.userId.toString() !== req.user._id.toString()) {
-      res.redirect("/");
-    } else {
-      const InvoiceName = "invoice-" + orderId + ".pdf";
-      const filePath = path.join("data", "invoice", InvoiceName);
-      const doc = new pdfDoc();
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `inline;filename=${InvoiceName}`);
-      doc.pipe(fs.createWriteStream(filePath));
-      doc.pipe(res);
-      doc.fontSize(24).text("Invoice");
-      doc.text("--------------------------------------------------------");
-      doc.fontSize(14).text("Order Data");
-      let sum = 0;
-      order.products.forEach((prod) => {
-        sum += prod.quantity * prod.product.price;
-        doc.text(prod.product.title + "  Quantity :" + prod.quantity);
-      });
-      doc.text("Total Price :" + sum + "Rs");
-      doc.end();
-    }
-  });
-};
 const stripe = require("stripe")(process.env.STRIPE_KEY);
 exports.getCheckout = (req, res, next) => {
   let products;

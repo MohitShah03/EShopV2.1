@@ -41,11 +41,11 @@ userSchema.methods.addToCart = function (product) {
   } else {
     updatedCartItems.push({
       productId: product._id,
-      quantity: newQuantity,
+      quantity: newQuantity
     });
   }
   const updatedCart = {
-    items: updatedCartItems,
+    items: updatedCartItems
   };
   this.cart = updatedCart;
   return this.save();

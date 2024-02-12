@@ -1,5 +1,5 @@
 const Product = require("../models/product");
-const file = require("../util/fileDelete");
+// const file = require("../util/fileDelete");
 
 exports.getAddProduct = (req, res) => {
   const error = req.flash("error");
@@ -79,7 +79,7 @@ exports.postEditProduct = (req, res) => {
       return product.save();
     })
     .then((result) => {
-      //console.log("UPDATED PRODUCT!");
+      //console.log("UPDATED PRODUCT!")
       res.redirect("/products");
     })
     .catch((err) => console.log(err));
@@ -109,21 +109,6 @@ exports.postDeleteProduct = (req, res) => {
     .then(() => {
       //console.log("DESTROYED PRODUCT");
       res.redirect("/products");
-    })
-    .catch((err) => console.log(err));
-};
-const Order = require("../models/order");
-exports.getAllOrders = (req, res) => {
-  console.log(req.session.isAdmin);
-  Order.find()
-    .then((orders) => {
-      res.render("admin/all-orders", {
-        pageTitle: "ALl orders",
-        path: "/all-order",
-        isAuthenticated: req.session.isLoggedIn,
-        isAdmin: req.session.isAdmin === "True" ? true : false,
-        orders: orders,
-      });
     })
     .catch((err) => console.log(err));
 };
