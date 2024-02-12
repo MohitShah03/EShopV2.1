@@ -91,7 +91,7 @@ exports.postSignup = (req, res, next) => {
           email: email,
           password: hashedPassword,
           cart: { items: [] },
-          superUser: 'True',
+          superUser: isSuperUser?"True":"False",
           address: req.body.address,
           mobileno: req.body.mobileno,
           name: req.body.name,
@@ -100,12 +100,6 @@ exports.postSignup = (req, res, next) => {
       })
       .then((result) => {
         res.redirect('/login');
-        return Transporter.sendMail({
-          to: email,
-          from: 'dzvenom10@gmail.com',
-          subject: 'Registration Success',
-          html: '<h1>You have been successfully registered we are happy to have you </h1>',
-        });
       })
       .catch((err) => console.log(err));
   });

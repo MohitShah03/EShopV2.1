@@ -3,34 +3,16 @@ const Order = require("../models/order");
 const fs = require("fs");
 const path = require("path");
 const pdfDoc = require("pdfkit");
-const { count } = require("console");
-const { page } = require("pdfkit");
-const LIMIT = 4;
 require("dotenv").config();
 
 exports.getProducts = (req, res, next) => {
-  const page = +req.query.page || 1;
-  let count;
   Product.find()
-    .countDocuments()
-    .then((num) => {
-      count = num;
-      return Product.find()
-        .skip((page - 1) * LIMIT)
-        .limit(LIMIT);
-    })
     .then((products) => {
       res.render("shop/product-list", {
         prods: products,
         pageTitle: "Shop",
         path: "/products",
         isAuthenticated: req.session.isLoggedIn,
-        pageNum: page,
-        hasNextPage: page * LIMIT < count,
-        hasPreviousPage: page > 1,
-        nextPage: page + 1,
-        previousPage: page - 1,
-        lastPage: Math.ceil(count / LIMIT),
         isAdmin: req.session.isAdmin === "True" ? true : false,
       });
     })
@@ -55,29 +37,14 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  const page = +req.query.page || 1;
-  let count;
+
   console.log(req.session);
-  Product.find()
-    .countDocuments()
-    .then((num) => {
-      count = num;
-      return Product.find()
-        .skip((page - 1) * LIMIT)
-        .limit(LIMIT);
-    })
-    .then((products) => {
+  Product.find().then((products) => {
       res.render("shop/index", {
         prods: products,
         pageTitle: "Shop",
         path: "/",
         isAuthenticated: req.session.isLoggedIn,
-        pageNum: page,
-        hasNextPage: page * LIMIT < count,
-        hasPreviousPage: page > 1,
-        nextPage: page + 1,
-        previousPage: page - 1,
-        lastPage: Math.ceil(count / LIMIT),
         isAdmin: req.session.isAdmin === "True" ? true : false,
       });
     })
@@ -208,21 +175,6 @@ exports.getCheckout = (req, res, next) => {
       products.forEach((p) => {
         sum += p.quantity * p.productId.price;
       });
-      return stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: products.map((p) => {
-          return {
-            name: p.productId.title,
-            description: p.productId.description,
-            amount: p.productId.price * 100,
-            currency: "inr",
-            quantity: p.quantity,
-          };
-        }),
-        success_url:
-          req.protocol + "://" + req.get("host") + "/checkout/success",
-        cancel_url: req.protocol + "://" + req.get("host") + "/checkout/cancel",
-      });
     })
     .then((session) => {
       res.render("shop/checkout", {
@@ -231,7 +183,6 @@ exports.getCheckout = (req, res, next) => {
         products: products,
         isAuthenticated: req.session.isLoggedIn,
         Total: sum,
-        sessionId: session.id,
         isAdmin: req.session.isAdmin === "True" ? true : false,
       });
     })
